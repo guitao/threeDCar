@@ -25,9 +25,10 @@ export default {
   methods: {
     // 初始化
     init: function () {
+      let _this = this;
       //创建场景
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0xcfcfcf);
+      // this.scene.background = new THREE.Color(0xcfcfcf);
       //创建相机，设置相机的位置
       this.camera = new THREE.PerspectiveCamera(
         75,
@@ -49,10 +50,16 @@ export default {
 
       // var loader = new THREE.GLTFLoader();
       var loader = new GLTFLoader();
-      loader.load("../assets/3d/busterDrone.gltf", function (gltf) {
+
+      // this.$axios.get('../../public/3d/tesla_model_s/scene.gltf')
+      //   .then(res => {
+      //     console.log(res)
+      //   })
+
+      loader.load("/3d/tesla_model_s/scene.gltf", function (gltf) {
         let model = gltf.scene;
         //场景中添加模型文件
-        this.scene.add(model);
+        _this.scene.add(model);
         model.traverse(function (gltf) {
           if (gltf.isMesh) {
             //设置mesh的一些属性
