@@ -178,7 +178,7 @@ const init = async () => {
   setCamera();
   setLight();
   setControls();
-  const gltf = await loadFile("/3d/tesla_model_white/scene.gltf");
+  const gltf = await loadFile("/3d/audi_r8/scene.gltf");
   scene.add(gltf.scene);
   loop();
 };
