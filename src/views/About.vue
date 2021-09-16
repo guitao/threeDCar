@@ -1,82 +1,94 @@
 <template>
-  <div class="demoWrap">
-    <div id="container"></div>
+  <div>
+    <div class="box"></div>
   </div>
 </template>
 
 <script>
-import * as THREE from "three";
+import {
+  // Color,
+  DirectionalLight,
+  // DirectionalLightHelper,
+  HemisphereLight,
+  // HemisphereLightHelper,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+} from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
 export default {
-  name: "ThreePage_demo1",
+  name: "ThreedcarAbout",
+
   data() {
     return {
-      camera: null,
       scene: null,
       renderer: null,
-      mesh: null,
-      controls: null,
+      camera: null,
+      defaultMap: {
+        x: 510,
+        y: 128,
+        z: 0,
+      },
     };
   },
+
   mounted() {
     this.init();
   },
+
   methods: {
-    // 初始化
-    init: function () {
-      let _this = this;
-      //创建场景
-      this.scene = new THREE.Scene();
-      // this.scene.background = new THREE.Color(0xcfcfcf);
-      //创建相机，设置相机的位置
-      this.camera = new THREE.PerspectiveCamera(
-        75,
+    async init() {
+      // 创建场景
+      this.scene = new Scene();
+
+      // 创建相机
+      const { x, y, z } = this.defaultMap;
+      this.camera = new PerspectiveCamera(
+        60,
         window.innerWidth / window.innerHeight,
-        0.1,
+        1,
         1000
       );
-      this.camera.position.set(0, 100, 150);
-      //灯光效果
-      var ambient = new THREE.AmbientLight(0xffffff);
-      this.scene.add(ambient);
-      //创建场景渲染
-      this.renderer = new THREE.WebGLRenderer({ antialias: true });
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      document
-        .getElementById("container")
-        .appendChild(this.renderer.domElement);
+      this.camera.position.set(x, y, z);
 
-      // var loader = new THREE.GLTFLoader();
-      var loader = new GLTFLoader();
+      // 创建灯光
+      let directionalLight = new DirectionalLight(0xffffff, 0.5);
+      directionalLight.position.set(-4, 8, 4);
+      let hemisphereLight = new HemisphereLight(0xffffff, 0xffffff, 0.4);
+      hemisphereLight.position.set(0, 8, 0);
+      this.scene.add(directionalLight);
+      this.scene.add(hemisphereLight);
 
-      // this.$axios.get('../../public/3d/tesla_model_s/scene.gltf')
-      //   .then(res => {
-      //     console.log(res)
-      //   })
+      this.renderer = new WebGLRenderer();
+      this.renderer.setSize(window.innerWidth, window.innerHeight - 100);
 
-      loader.load("/3d/tesla_model_s/scene.gltf", function (gltf) {
-        let model = gltf.scene;
-        //场景中添加模型文件
-        _this.scene.add(model);
-        model.traverse(function (gltf) {
-          if (gltf.isMesh) {
-            //设置mesh的一些属性
+      document.querySelector(".box").appendChild(this.renderer.domElement);
+      const gltf = await this.loadFile("/3d/tesla_model_white/scene.gltf");
+      this.scene.add(gltf.scene);
+    },
+    loadFile(url) {
+      const loader = new GLTFLoader();
+      return new Promise((resolve, reject) => {
+        loader.load(
+          url,
+          (gltf) => {
+            resolve(gltf);
+          },
+          ({ loaded, total }) => {
+            console.log((loaded / total) * 100 + "% loaded");
+          },
+          (err) => {
+            reject(err);
           }
-        });
-        //设置整体场景的比例
-        model.scale.set(10, 10, 10);
+        );
       });
     },
   },
 };
 </script>
 
-<style>
-#container {
-  position: absolute;
-  width: 98%;
-  height: 98%;
+<style scoped>
+.box {
 }
 </style>
